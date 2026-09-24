@@ -24,6 +24,41 @@ class ProductListProvider extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMore => _hasMore;
 
+  // Search query for filtering products
+  String _searchQuery = '';
+
+  bool get isSearching => _searchQuery.isNotEmpty;
+
+  Future<void> searchProducts(String query) async {
+    _searchQuery = query;
+
+    if (query.trim().isEmpty) {
+      await loadProducts();
+      return;
+    }
+
+    try {
+      state = ViewState.loading;
+      errorMessage = null;
+      notifyListeners();
+
+      final results = await repository.searchProducts(query.trim());
+
+      products = results;
+
+      if (products.isEmpty) {
+        state = ViewState.empty;
+      } else {
+        state = ViewState.success;
+      }
+    } catch (e) {
+      errorMessage = e.toString();
+      state = ViewState.error;
+    }
+
+    notifyListeners();
+  }
+
   Future<void> loadProducts() async {
     try {
       state = ViewState.loading;
@@ -58,6 +93,10 @@ class ProductListProvider extends ChangeNotifier {
   }
 
   Future<void> loadMore() async {
+    if (isSearching) {
+      return; // Don't load more when searching
+    }
+
     if (_isLoadingMore || !_hasMore) {
       return;
     }
