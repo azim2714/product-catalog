@@ -110,7 +110,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
                   case ViewState.success:
                     return RefreshIndicator(
-                      onRefresh: provider.refreshProducts,
+                      onRefresh: () async {
+                        _searchController.clear();
+                        await provider.refreshProducts();
+                      },
                       child: ListView.builder(
                         controller: _scrollController,
                         itemCount:

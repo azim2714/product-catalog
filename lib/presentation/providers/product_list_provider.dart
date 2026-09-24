@@ -65,6 +65,7 @@ class ProductListProvider extends ChangeNotifier {
       errorMessage = null;
       _skip = 0;
       _hasMore = true;
+      _searchQuery = '';
 
       notifyListeners();
 
