@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../providers/product_detail_provider.dart';
 import '../providers/view_state.dart';
@@ -7,10 +8,7 @@ import '../providers/view_state.dart';
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.productId,
-  });
+  const ProductDetailScreen({super.key, required this.productId});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -22,25 +20,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<ProductDetailProvider>()
-          .loadProduct(widget.productId);
+      context.read<ProductDetailProvider>().loadProduct(widget.productId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Details'),
-      ),
+      appBar: AppBar(title: const Text('Product Details')),
       body: Consumer<ProductDetailProvider>(
         builder: (context, provider, child) {
           switch (provider.state) {
             case ViewState.loading:
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
 
             case ViewState.error:
               return Center(
@@ -60,9 +52,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               );
 
             case ViewState.empty:
-              return const Center(
-                child: Text('Product not found'),
-              );
+              return const Center(child: Text('Product not found'));
 
             case ViewState.success:
               final product = provider.product!;
@@ -77,9 +67,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: PageView.builder(
                         itemCount: product.images.length,
                         itemBuilder: (context, index) {
-                          return Image.network(
-                            product.images[index],
+                          return CachedNetworkImage(
+                            imageUrl: product.images[index],
                             fit: BoxFit.contain,
+                            placeholder: (context, url) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorWidget: (context, url, error) {
+                              return const Center(
+                                child: Icon(Icons.broken_image, size: 48),
+                              );
+                            },
                           );
                         },
                       ),
