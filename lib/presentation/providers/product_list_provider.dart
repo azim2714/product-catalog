@@ -92,6 +92,10 @@ class ProductListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> refreshProducts() async {
+    await loadProducts();
+  }
+
   Future<void> loadMore() async {
     if (isSearching) {
       return; // Don't load more when searching

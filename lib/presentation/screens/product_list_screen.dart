@@ -109,40 +109,43 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     return const Center(child: Text('No products found'));
 
                   case ViewState.success:
-                    return ListView.builder(
-                      controller: _scrollController,
-                      itemCount:
-                          provider.products.length +
-                          (provider.isLoadingMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= provider.products.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
+                    return RefreshIndicator(
+                      onRefresh: provider.refreshProducts,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount:
+                            provider.products.length +
+                            (provider.isLoadingMore ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= provider.products.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
 
-                        final product = provider.products[index];
+                          final product = provider.products[index];
 
-                        return ProductCard(
-                          product: product,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChangeNotifierProvider(
-                                  create: (_) => ProductDetailProvider(
-                                    ProductRepository(ProductApiService()),
-                                  ),
-                                  child: ProductDetailScreen(
-                                    productId: product.id,
+                          return ProductCard(
+                            product: product,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChangeNotifierProvider(
+                                    create: (_) => ProductDetailProvider(
+                                      ProductRepository(ProductApiService()),
+                                    ),
+                                    child: ProductDetailScreen(
+                                      productId: product.id,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
+                              );
+                            },
+                          );
+                        },
+                      ),
                     );
                 }
               },
